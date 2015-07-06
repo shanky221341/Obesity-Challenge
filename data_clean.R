@@ -76,7 +76,7 @@ if (csv.check == 1) {
     to_year<-rep(0,nrow(data_mod))
     to_month<-rep(0,nrow(data_mod))
     ons_code<-data_mod[,1]
-    data_mod<-cbind(ons_code,cbind(from_year,from_month,to_year,to_month),data_mod[,2:ncol(temp)])
+    data_mod<-cbind(ons_code,cbind(from_year,from_month,to_year,to_month),data_mod[,2:ncol(data_mod)])
     # this will split the whole data into three files based on the row numbers
     for (i in 1:3) {
       file_name <- paste(names[i], splits[6], sep = "")
@@ -104,10 +104,13 @@ if (csv.check == 1) {
     sheet.names <- c("7.8", "7.11", "7.13")
   } else if (splits[6] == "2010") {
     sheet.names <- c("7.7", "7.10", "7.12")
-    
+    year<-"2008/9"
   } else if (splits[6] == "2008") {
     sheet.names <- c("7.10", "7.13")
+    year<-"2006/7"
   }
+  if(splits[6]=='2011'){year<-"2009/10"}
+  if(splits[6]=='2009'){year<-"2007/8"}
   file.temp<-paste(tempdir(),"temp.xls",sep="")
   download.file(file,file.temp)
   for (i in 1:length(sheet.names)) {
@@ -118,9 +121,12 @@ if (csv.check == 1) {
     data_mod <- subset(data, grepl("^[0-9]+", SHA), select = c(1:4))
     row.names(data_mod)<-NULL
     colnames(data_mod) <- names.new
-    file_name <- paste(names[i], splits[6], sep = "")
-    file_name <- paste(file_name, ".csv", sep = "")
-    file_name<-paste("./parsed/",file_name,sep="")
+    from_year<-rep(year,nrow(data_mod))
+    from_month<-rep(0,nrow(data_mod))
+    to_year<-rep(0,nrow(data_mod))
+    to_month<-rep(0,nrow(data_mod))
+    ons_code<-data_mod[,1]
+    data_mod<-cbind(ons_code,cbind(from_year,from_month,to_year,to_month),data_mod[,2:ncol(data_mod)])
     print(data_mod)
   }
 }
