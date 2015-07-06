@@ -1,13 +1,11 @@
-# Taking file from command line arguments args <- commandArgs(trailingOnly =
-# TRUE) file
-# <-'http://www.hscic.gov.uk/catalogue/PUB16988/Obes-phys-acti-diet-eng-2015-tab.csv'
 file<-c('http://www.hscic.gov.uk/catalogue/PUB16988/Obes-phys-acti-diet-eng-2015-tab.csv','http://www.hscic.gov.uk/catalogue/PUB13648/Obes-phys-acti-diet-eng-2014-tab_CSV.csv','http://www.hscic.gov.uk/catalogue/PUB10364/obes-phys-acti-diet-eng-2013-csv-tab.csv','http://www.hscic.gov.uk/catalogue/PUB05131/obes-phys-acti-diet-eng-2012-csv-tab.csv','http://www.hscic.gov.uk/catalogue/PUB00210/obes-phys-acti-diet-eng-2011-tab.xls','http://www.hscic.gov.uk/catalogue/PUB00206/obes-phys-acti-diet-eng-2010-tab.xls','http://www.hscic.gov.uk/catalogue/PUB00188/obes-phys-acti-diet-eng-2009-tab.xls','http://www.hscic.gov.uk/catalogue/PUB00175/obes-phys-acti-diet-eng-2008-tab.xls')
-#file <- c("http://www.hscic.gov.uk/catalogue/PUB13648/Obes-phys-acti-diet-eng-2014-tab_CSV.csv", 
-#    "http://www.hscic.gov.uk/catalogue/PUB10364/obes-phys-acti-diet-eng-2013-csv-tab.csv", 
-#   "http://www.hscic.gov.uk/catalogue/PUB05131/obes-phys-acti-diet-eng-2012-csv-tab.csv")
+
 # Check the type of the file for csv or xls
 for (file in file) {
-    csv.check <- grepl(".csv", file)
+	
+	print("processing file")
+	print(file)
+	csv.check <- grepl(".csv", file)
     # cleaning for 2015 file
     if (csv.check == 1) {
         # for extracting the year from the file name
@@ -24,7 +22,6 @@ for (file in file) {
                 5, 6, 7))
             # set the names of the new data
             names.new <- c("ons_code", "name", "total_admissions", "male_adm", "female_adm")
-            addit.names <- c("from_year", "from_month", "to_year", "to_month")
             colnames(data_mod) <- names.new
             # separate files for separate tables
             
@@ -56,8 +53,7 @@ for (file in file) {
             # for years other than 2015 in csv format
             data <- read.csv(file, stringsAsFactors = FALSE)
             data_mod <- subset(data, grepl("E[0-9]+", X))
-            # Using re expression to find only those rows with ons code and the relevant
-            # columns
+            # Using re expression to find only those rows with ons code and the relevant columns
             data_mod <- data_mod[, 2:6]
             names.new <- c("ons_code", "name", "total_admissions", "male_adm", "female_adm")
             
@@ -67,9 +63,7 @@ for (file in file) {
             # primary, primary-secondary and bariatric Hence the whole rows will be multiple
             # of three Initialize the start and the end of row
             r_start = 1
-            r_end = row_num/3
-            names <- c("obes_primary_diag", "obes_primary_diag_secondary_diag", "obes_primary_diag_with_bariatric")
-            
+            r_end = row_num/3            
             # to find the file year
             splits <- strsplit(file, "-")
             splits <- splits[[1]]
@@ -95,17 +89,20 @@ for (file in file) {
             }
         }
     } else {
+        
         # for the xls format files
         require(xlsx)
+        
         # set the new names of the columns
         names.new <- c("sha_name", "total_admissions", "male_adm", "female_adm")
-        # set the names of the files
-        names <- c("obes_primary_diag", "obes_primary_diag_secondary_diag", "obes_primary_diag_with_bariatric")
+      
         # Initialize the sheet name
         sheet.names <- "null"
+        
         # find the year of the file
         splits <- strsplit(file, "-")
         splits <- splits[[1]]
+        
         # set the sheet names based on the year
         if (splits[6] == "2011" || splits[6] == "2009") {
             sheet.names <- c("7.8", "7.11", "7.13")
@@ -122,8 +119,10 @@ for (file in file) {
         if (splits[6] == "2009") {
             year <- "2007/8"
         }
+        #for first downloading the xls file in temp directory and then reading from it
         file.temp <- paste(tempdir(), "temp.xls", sep = "")
         download.file(file, file.temp)
+
         for (i in 1:length(sheet.names)) {
             
             data <- read.xlsx(file.temp, sheetName = sheet.names[i], header = FALSE)
@@ -143,4 +142,6 @@ for (file in file) {
             print(data_mod)
         }
     }
+cat ("Press [enter] to process the next file")
+line <- readline()
 } 
